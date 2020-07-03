@@ -52,6 +52,22 @@ class Compressor(private val context: AppCompatActivity) {
         return resultLiveData
     }
 
+    private fun getNewWidthAndHeight(width: Double, height: Double) : Pair<Int, Int> {
+        var newWidth: Double = 0.0
+        var newHeight: Double = 0.0
+        var divider: Double = 0.0
+        if (width > height) {
+            divider = height / 360
+            newWidth = if (width <= 640) { width } else { width / divider }
+            newHeight = if (height <= 360) { height } else { height / divider }
+        } else {
+            divider = width / 360
+            newWidth = if (width <= 360) { width } else { width / divider }
+            newHeight = if (height <= 640) { height } else { height / divider }
+        }
+        return Pair(newWidth.toInt(), newHeight.toInt())
+    }
+
     private fun compressVideo(
         source: String,
         destination: String,
@@ -78,9 +94,15 @@ class Compressor(private val context: AppCompatActivity) {
             mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                 .toLong() * 1000
 
+        if (bitrate <= 360000 && width <= 640 && height <= 360) {
+            val localFile = File(source)
+            localFile.copyTo(File(destination))
+            return true
+        }
+
         //Handle new bitrate value
 
-        val newBitrate = if (bitrate <= 500000) { bitrate } else if (bitrate <= 1000000) { 500000 } else { 600000 }
+        val newBitrate = if (bitrate <= 360000) { bitrate } else { 360000 }
 
         /*Log.v("TestVideo", "height: $height")
         Log.v("TestVideo", "width: $width")
@@ -89,9 +111,7 @@ class Compressor(private val context: AppCompatActivity) {
         Log.v("TestVideo", "duration: $duration")*/
 
         //Handle new width and height values
-        //var (newWidth, newHeight) = generateWidthAndHeight(width.toDouble(), height.toDouble())
-        var newWidth = if (width <= 640) { width } else { 640 }
-        var newHeight = if (height <= 360) { height } else { 360 }
+        var (newWidth, newHeight) = getNewWidthAndHeight(width.toDouble(), height.toDouble())
 
         //Handle rotation values and swapping height and width if needed
         rotation = when (rotation) {
