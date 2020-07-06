@@ -94,7 +94,7 @@ class Compressor(private val context: AppCompatActivity) {
             mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                 .toLong() * 1000
 
-        if (bitrate <= 360000 && width <= 640 && height <= 360) {
+        if (bitrate <= 300000 && width <= 640 && height <= 360) {
             val localFile = File(source)
             localFile.copyTo(File(destination))
             return true
@@ -102,7 +102,7 @@ class Compressor(private val context: AppCompatActivity) {
 
         //Handle new bitrate value
 
-        val newBitrate = if (bitrate <= 360000) { bitrate } else { 360000 }
+        val newBitrate = if (bitrate <= 300000) { bitrate } else { 300000 }
 
         /*Log.v("TestVideo", "height: $height")
         Log.v("TestVideo", "width: $width")
